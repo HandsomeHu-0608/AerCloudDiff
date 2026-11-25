@@ -1,0 +1,152 @@
+dataset:
+  task: 2DAer_history
+  sample_dir: data/h5
+  sample_glob: sample_2025????12.h5
+  max_files: null
+  require_explicit_splits: true
+  target_key: bt13_future
+  target_valid_mask_key: bt13_future_valid_mask
+  history_key: bt13_hist
+  history_valid_mask_key: bt13_hist_valid_mask
+  cascade_horizon: 6
+  cascade_blocks: 4
+  history_length: 25
+  patch_size:
+  - 144
+  - 184
+  patches_per_file: 12
+  patch_sampling: random
+  include_cloud_hist: true
+  include_bt13_hist: true
+  include_future_bt13_as_condition: false
+  include_coszen: true
+  include_daylight_mask: true
+  include_wrf_meteo: true
+  include_wrf_rad: true
+  include_aod550: true
+  include_k_wrf: true
+  include_aerosol_column_summary: true
+  include_aerosol_full3d: false
+  include_static: true
+  include_time: true
+  teacher_forcing: true
+  history_teacher_noise_std_k: 6.0
+  history_teacher_drop_prob: 0.12
+  history_teacher_bias_std_k: 4.0
+  history_teacher_blur_prob: 0.35
+  history_teacher_block_scale:
+  - 0.0
+  - 1.0
+  - 1.25
+  - 1.5
+  west_edge_weighting: true
+  west_edge_lon_threshold: 80.0
+  west_edge_transition_lon: 90.0
+  west_edge_weight: 1.35
+  west_edge_transition_weight: 1.15
+  normalize_b13: true
+  b13_clip:
+  - 180.0
+  - 330.0
+  cot_clip_max: 150.0
+  splits:
+    train:
+      start: '2025-01-01'
+      end: '2025-10-31'
+    val:
+      start: '2025-11-01'
+      end: '2025-11-30'
+    test:
+      start: '2025-12-01'
+      end: '2025-12-31'
+model:
+  name: 2DAer_history
+  base_channels: 128
+  channel_mult:
+  - 1
+  - 2
+  - 4
+  diffusion_steps: 1000
+  sampling_steps: 100
+  sampler: ddim
+  ddim_eta: 0.0
+  timestep_embedding: sincos
+  target_channels: 1
+training:
+  batch_size: 3
+  num_workers: 4
+  epochs: 100
+  lr: 3.0e-05
+  amp: true
+  gradient_accumulation_steps: 1
+  grad_clip_norm: 0.5
+  ema: true
+  ema_decay: 0.999
+  ema_validate: true
+  checkpoint_every: 50
+  checkpoint_epochs:
+  - 50
+  - 80
+  - 100
+  cascade_block_loss_weights:
+  - 1.0
+  - 1.25
+  - 1.55
+  - 1.85
+  lambda_b13_recon: 0.05
+  b13_recon_loss_mode: smooth_l1
+  recon_loss_start_epoch: 1
+  recon_loss_warmup_epochs: 5
+  recon_loss_max_t_fraction: 0.35
+  lambda_b13_bias: 0.02
+  b13_bias_loss_mode: mse
+  bias_loss_start_epoch: 1
+  bias_loss_warmup_epochs: 5
+  bias_loss_max_t_fraction: 0.35
+  lambda_daylight_bias: 0.03
+  daylight_bias_loss_mode: mse
+  daylight_bias_start_epoch: 1
+  daylight_bias_warmup_epochs: 5
+  daylight_bias_max_t_fraction: 0.35
+  lambda_b13_gradient_recon: 0.02
+  b13_gradient_recon_loss_mode: smooth_l1
+  gradient_recon_start_epoch: 1
+  gradient_recon_warmup_epochs: 5
+  gradient_recon_max_t_fraction: 0.35
+  lambda_b13_lead_bias: 0.04
+  b13_lead_bias_loss_mode: mse
+  lead_bias_start_epoch: 1
+  lead_bias_warmup_epochs: 5
+  lead_bias_max_t_fraction: 0.35
+  lambda_daylight_lead_bias: 0.04
+  daylight_lead_bias_loss_mode: mse
+  daylight_lead_bias_start_epoch: 1
+  daylight_lead_bias_warmup_epochs: 5
+  daylight_lead_bias_max_t_fraction: 0.35
+  lambda_boundary_consistency: 0.03
+  boundary_consistency_loss_mode: smooth_l1
+  boundary_consistency_start_epoch: 1
+  boundary_consistency_warmup_epochs: 5
+  boundary_consistency_max_t_fraction: 0.35
+  cold_cloud_thresholds_k:
+  - 241.0
+  - 225.0
+  - 210.0
+  cold_cloud_threshold_weights:
+  - 1.0
+  - 1.2
+  - 1.4
+  cold_cloud_softness_k: 4.0
+  lambda_cold_cloud_area: 0.02
+  lambda_cold_cloud_dice: 0.03
+  lambda_cold_cloud_retention: 0.04
+  cold_cloud_start_epoch: 1
+  cold_cloud_warmup_epochs: 5
+  cold_cloud_max_t_fraction: 0.35
+  validation_seed: 2042
+  validation_timestep_mode: stratified
+  validation_timestep_bins: 10
+  validation_noise_mode: fixed
+  seed: 42
+output:
+  output_dir: runs/2DAer_history

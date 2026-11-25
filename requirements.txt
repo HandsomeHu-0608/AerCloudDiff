@@ -1,0 +1,12 @@
+numpy>=1.26
+pandas>=2.1
+h5py>=3.10
+scipy>=1.11
+netCDF4>=1.6
+hdf5storage>=0.1.19
+matplotlib>=3.8
+PyYAML>=6.0
+tqdm>=4.66
+torch>=2.2
+pyshp>=3.0
+pyproj>=3.7
